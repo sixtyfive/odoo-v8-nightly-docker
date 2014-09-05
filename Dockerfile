@@ -31,15 +31,16 @@ RUN chown $ODOO_USER:$ODOO_USER $ODOO_HOME
 RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/9.3/main/pg_hba.conf
 RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
 
-# Run the rest of the commands as the ``postgres`` user created by the ``postgres-9.3`` package 
-USER postgres
+# there might be a docker bug that postgresql could access 
+# /etc/ssl/private/ssl-cert-snakeoil.key
+RUN sed -i "s/ssl = true/ssl = false/g" /etc/postgresql/9.3/main/postgresql.conf
+
+# start postgresql
+RUN /etc/init.d/postgresql start 
 
 # Create a PostgreSQL role 
-# Note: here we use ``&&\`` to run commands one after the other - the ``\``
-#       allows the RUN command to span multiple lines.
-RUN /etc/init.d/postgresql start &&\
-    psql -e --command "CREATE USER $ODOO_USER WITH SUPERUSER PASSWORD 'openerp'" &&\
-    /etc/init.d/postgresql stop
+USER postgres
+RUN psql -e --command "CREATE USER $ODOO_USER WITH SUPERUSER PASSWORD 'openerp'"
 
 USER root
 
@@ -51,8 +52,17 @@ RUN sed -i "s/db_user = .*/db_user = $ODOO_USER/g" /etc/openerp/openerp-server.c
 # change user shell thus a root can su to the account
 RUN chsh -s /bin/bash $ODOO_USER
 
+# start Odoo
+RUN /etc/init.d/openerp start
+
 # add supervesord config file
-ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+ENV SUPERVISORD_CONFIG /etc/supervisor/conf.d/supervisord.conf
+
+RUN echo "[supervisord]" >> SUPERVISORD_CONFIG
+RUN echo "nodaemon=true" >> SUPERVISORD_CONFIG
+RUN echo "" >> SUPERVISORD_CONFIG
+RUN echo "[program:sshd]" >> SUPERVISORD_CONFIG
+RUN echo "command=/usr/sbin/sshd -D" >> SUPERVISORD_CONFIG
 
 EXPOSE 22 5432 8069
 
