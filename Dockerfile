@@ -4,10 +4,7 @@ FROM ubuntu:14.04
 MAINTAINER Ying Liu - www.MindIsSoftware.com 
 
 ENV ODOO_USER openerp
-ENV ODOO_DB_USER odoo
-ENV ODOO_DB_PASSWORD ODOO_DB_USER
-ENV ODOO_DB_HOST odoodb
-ENV ODOO_DB_PORT 5432
+ENV ODOO_HOME /home/$ODOO_USER
 
 RUN echo deb http://nightly.odoo.com/8.0/nightly/deb/ ./ >> /etc/apt/sources.list
 
@@ -19,32 +16,27 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 RUN apt-get update
 RUN apt-get upgrade -y
 
-RUN apt-get install -y vim git wget curl
+RUN apt-get install -y vim git wget curl 
+RUN apt-get install -y supervisor openssh-server
 
 RUN apt-get install --allow-unauthenticated -y openerp
 
-ENV OPENERP_HOME /home/$ODOO_USER
-RUN mkdir -p $OPENERP_HOME 
-RUN chown $ODOO_USER:$ODOO_USER $OPENERP_HOME 
+RUN mkdir -p /var/run/sshd
+RUN mkdir -p /var/log/supervisor
+
+RUN mkdir -p $ODOO_HOME 
+RUN chown $ODOO_USER:$ODOO_USER $ODOO_HOME 
+
+# config local postgresql
+RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/9.3/main/pg_hba.conf
+RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
 
 # config odoo 
-ENV ODOO_CONFIG /etc/openerp/openerp-server.conf
-RUN sed -i "s/db_user = .*/db_user = $ODOO_DB_USER/g" $ODOO_CONFIG
-RUN sed -i "s/db_password = .*/db_password = $ODOO_DB_PASSWORD/g" $ODOO_CONFIG
-RUN sed -i "s/db_host = .*/db_host = $ODOO_DB_HOST/g" $ODOO_CONFIG
-RUN sed -i "s/db_port = .*/db_port = $ODOO_DB_PORT/g" $ODOO_CONFIG
+RUN sed -i "s/db_user = .*/db_user = $ODOO_USER/g" $/etc/openerp/openerp-server.conf
 
-VOLUME ["/etc/openerp", "var/log/openerp"]
+# add supervesord config file
+ADD files/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-EXPOSE 8069
+EXPOSE 22 5432 8069
 
-USER openerp
-
-# It is critical to set HOME environment variable. 
-# odoo won't start without it
-ENV HOME $OPENERP_HOME
-
-ENTRYPOINT ["/usr/bin/python"]
-
-# we cannot use $ODOO_CONFIG inside the CMD string
-CMD ["/usr/bin/openerp-server", "--config=/etc/openerp/openerp-server.conf", "--logfile=/var/log/openerp/openerp-server.log"]
+CMD ["/usr/bin/supervisord"]
