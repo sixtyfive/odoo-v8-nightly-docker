@@ -21,6 +21,7 @@ sudo docker stop odoo8
 ```
 
 To restart it:
+
 ```bash
 sudo docker start odoo8
 ```
