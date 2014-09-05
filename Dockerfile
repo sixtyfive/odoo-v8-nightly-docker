@@ -38,7 +38,7 @@ VOLUME ["/etc/openerp", "var/log/openerp"]
 
 EXPOSE 8069
 
-USER $ODOO_USER
+USER openerp
 
 # It is critical to set HOME environment variable. 
 # odoo won't start without it
