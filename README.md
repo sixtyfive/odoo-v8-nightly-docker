@@ -25,9 +25,9 @@ To restart it:
 sudo docker start odoo8
 ```
 
-The created Docker container exposes SSH (22 to 2222), Postgresql (5432) and Odoo (8069)
+The created Docker container exposes SSH (from 22 to 2222), Postgresql (5432) and Odoo (8069)
 pors in the host. You can connect to these services remotely. 
-For SSH, you need to config user password in the container. 
+To use SSH, you need to config user and password in the container. 
 
 Instaed of SSH, you can access the container using a tool called 
 [nsenter](https://github.com/jpetazzo/nsenter). 
@@ -38,4 +38,13 @@ docker run --rm -v /usr/local/bin:/target jpetazzo/nsenter
 
 # login odoo container
 docker-enter odoo8
+```
+
+In the container, you can stop Postgresql or Odoo service 
+by finding their process id and `kill`  them.
+Then you can start the services using the init.d service command
+
+```bash
+/etc/init.d/postgresql start 
+/etc/init.d/openerp start
 ```
