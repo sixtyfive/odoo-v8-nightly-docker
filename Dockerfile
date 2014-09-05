@@ -35,12 +35,11 @@ RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
 # /etc/ssl/private/ssl-cert-snakeoil.key
 RUN sed -i "s/ssl = true/ssl = false/g" /etc/postgresql/9.3/main/postgresql.conf
 
-# start postgresql
-RUN /etc/init.d/postgresql start 
-
-# Create a PostgreSQL role 
+# start postgresql and create a role
 USER postgres
-RUN psql -e --command "CREATE USER $ODOO_USER WITH SUPERUSER PASSWORD 'openerp'"
+RUN /etc/init.d/postgresql start &&\
+    psql -e --command "CREATE USER $ODOO_USER WITH SUPERUSER PASSWORD 'openerp'" &&\
+    /etc/init.d/postgresql stop
 
 USER root
 
@@ -52,18 +51,29 @@ RUN sed -i "s/db_user = .*/db_user = $ODOO_USER/g" /etc/openerp/openerp-server.c
 # change user shell thus a root can su to the account
 RUN chsh -s /bin/bash $ODOO_USER
 
-# start Odoo
-RUN /etc/init.d/openerp start
-
 # add supervesord config file
-ENV SUPERVISORD_CONFIG /etc/supervisor/conf.d/supervisord.conf
+ENV SUPERVISORD_CONFIG_DIR /etc/supervisor/conf.d
+ENV SUPERVISORD_CONFIG_FILE $SUPERVISORD_CONFIG_DIR/supervisord.conf
 
-RUN echo "[supervisord]" >> SUPERVISORD_CONFIG
-RUN echo "nodaemon=true" >> SUPERVISORD_CONFIG
-RUN echo "" >> SUPERVISORD_CONFIG
-RUN echo "[program:sshd]" >> SUPERVISORD_CONFIG
-RUN echo "command=/usr/sbin/sshd -D" >> SUPERVISORD_CONFIG
+RUN mkdir -p $SUPERVISORD_CONFIG_DIR 
+RUN echo "[supervisord]" >> $SUPERVISORD_CONFIG_FILE
+RUN echo "nodaemon=true" >> $SUPERVISORD_CONFIG_FILE
+RUN echo "" >> $SUPERVISORD_CONFIG_FILE
+RUN echo "[program:sshd]" >> $SUPERVISORD_CONFIG_FILE
+RUN echo "command = /usr/sbin/sshd -D" >> $SUPERVISORD_CONFIG_FILE
+
+RUN echo "" >> $SUPERVISORD_CONFIG_FILE
+RUN echo "[program:postgresql]" >> $SUPERVISORD_CONFIG_FILE
+RUN echo "user = postgres" >> $SUPERVISORD_CONFIG_FILE
+RUN echo "command = /usr/lib/postgresql/9.3/bin/postgres -D /var/lib/postgresql/9.3/main -c config_file=/etc/postgresql/9.3/main/postgresql.conf" >> $SUPERVISORD_CONFIG_FILE
+
+RUN echo "" >> $SUPERVISORD_CONFIG_FILE
+RUN echo "[program:openerp]" >> $SUPERVISORD_CONFIG_FILE
+RUN echo "user = openerp" >> $SUPERVISORD_CONFIG_FILE
+RUN echo 'environment = USER="openerp", LOGNAME="openerp", HOME="/home/openerp"' >> $SUPERVISORD_CONFIG_FILE
+RUN echo "command = /usr/bin/openerp-server --config=/etc/openerp/openerp-server.conf --logfile=/var/log/openerp/openerp-server.log" >> $SUPERVISORD_CONFIG_FILE
 
 EXPOSE 22 5432 8069
 
-CMD ["/usr/bin/supervisord"]
+# supervisord requires CMD
+CMD ["/usr/bin/supervisord", "--configuration=/etc/supervisor/conf.d/supervisord.conf"]
