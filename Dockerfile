@@ -3,6 +3,7 @@
 FROM ubuntu:14.04
 MAINTAINER Ying Liu - www.MindIsSoftware.com 
 
+# This is the account name created by Odoo setup
 ENV ODOO_USER openerp
 
 RUN echo deb http://nightly.odoo.com/8.0/nightly/deb/ ./ >> /etc/apt/sources.list
@@ -12,6 +13,7 @@ RUN locale-gen en_US.UTF-8 && update-locale
 RUN echo 'LANG="en_US.UTF-8"' > /etc/default/locale
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 
+# install supporting packages
 RUN apt-get update
 RUN apt-get upgrade -y
 
@@ -42,13 +44,17 @@ USER root
 
 #### config odoo 
 
-# set the database user
-RUN sed -i "s/db_user = .*/db_user = $ODOO_USER/g" /etc/openerp/openerp-server.conf
+# Odoo setup doesn't create home directory
+RUN mkdir -p /home/$ODOO_USER
+RUN chown $ODOO_USER:$ODOO_USER -R /home/$ODOO_USER
 
 # change user shell thus a root can su to the account
 RUN chsh -s /bin/bash $ODOO_USER
 
-# add supervesord config file
+# set the database user
+RUN sed -i "s/db_user = .*/db_user = $ODOO_USER/g" /etc/openerp/openerp-server.conf
+
+#### config supervesord 
 ENV SUPERVISORD_CONFIG_DIR /etc/supervisor/conf.d
 ENV SUPERVISORD_CONFIG_FILE $SUPERVISORD_CONFIG_DIR/supervisord.conf
 

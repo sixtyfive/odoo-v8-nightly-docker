@@ -97,6 +97,8 @@ to fork and customize it.
 * Run all services in interactive mode using Supervisor. 
 A service starts/stops when a container starts/stops. If you want,
 you can kill any service and re-start it inside a container.
+* Create home directory for openerp user. Odoo creates this 
+account but doesn't create the home directory. 
 * Set **"HOME"** environment variable for **openerp** user. Odoo may
 complain if it is not there. 
 * Use CMD, not ENTTRYPOINT, to run supervisord
