@@ -25,9 +25,6 @@ RUN mkdir -p /var/log/supervisor
 
 #### config postgresql
 
-# !!! a bug in Docker that sets wrong directory owner 
-RUN chown postgres:postgres -R /var/lib/postgresql/9.3/main/
-
 RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/9.3/main/pg_hba.conf
 RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
 
