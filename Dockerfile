@@ -4,7 +4,6 @@ FROM ubuntu:14.04
 MAINTAINER Ying Liu - www.MindIsSoftware.com 
 
 ENV ODOO_USER openerp
-ENV ODOO_HOME /home/$ODOO_USER
 
 RUN echo deb http://nightly.odoo.com/8.0/nightly/deb/ ./ >> /etc/apt/sources.list
 
@@ -24,10 +23,11 @@ RUN apt-get install --allow-unauthenticated -y openerp
 RUN mkdir -p /var/run/sshd
 RUN mkdir -p /var/log/supervisor
 
-RUN mkdir -p $ODOO_HOME 
-RUN chown $ODOO_USER:$ODOO_USER $ODOO_HOME 
-
 #### config postgresql
+
+# !!! a bug in Docker that sets wrong directory owner 
+RUN chown postgres:postgres -R /var/lib/postgresql/9.3/main/
+
 RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/9.3/main/pg_hba.conf
 RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
 
