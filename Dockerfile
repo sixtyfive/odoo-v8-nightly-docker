@@ -5,6 +5,8 @@ MAINTAINER Ying Liu - www.MindIsSoftware.com
 
 # This is the account name created by Odoo setup
 ENV ODOO_USER openerp
+ENV ODOO_HOME /home/$ODOO_USER
+ENV ODOO_ADDONS_DIR $ODOO_HOME/addons
 
 RUN echo deb http://nightly.odoo.com/8.0/nightly/deb/ ./ >> /etc/apt/sources.list
 
@@ -45,14 +47,15 @@ USER root
 #### config odoo 
 
 # Odoo setup doesn't create home directory
-RUN mkdir -p /home/$ODOO_USER
-RUN chown $ODOO_USER:$ODOO_USER -R /home/$ODOO_USER
+RUN mkdir -p $ODOO_ADDONS_DIR
+RUN chown $ODOO_USER:$ODOO_USER -R $ODOO_HOME 
 
 # change user shell thus a root can su to the account
 RUN chsh -s /bin/bash $ODOO_USER
 
-# set the database user
-RUN sed -i "s/db_user = .*/db_user = $ODOO_USER/g" /etc/openerp/openerp-server.conf
+ENV ODOO_CONFIG /etc/openerp/openerp-server.conf
+RUN sed -i "s/db_user = .*/db_user = $ODOO_USER/g" $ODOO_CONFIG 
+RUN echo "addons_path = $ODOO_ADDONS_DIR" >> $ODOO_CONFIG 
 
 #### config supervesord 
 ENV SUPERVISORD_CONFIG_DIR /etc/supervisor/conf.d
