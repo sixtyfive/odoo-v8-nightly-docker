@@ -1,4 +1,4 @@
-# based on https://github.com/sqawasmi/odoo-docker/blob/v8/Dockerfile
+# This script builds a docker image from Odoo 8.0 nightly build in Ubuntu 14.04
 
 FROM ubuntu:14.04
 MAINTAINER Ying Liu - www.MindIsSoftware.com 
