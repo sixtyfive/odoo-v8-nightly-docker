@@ -4,7 +4,7 @@ FROM ubuntu:14.04
 MAINTAINER Ying Liu - www.MindIsSoftware.com 
 
 # This is the account name created by Odoo setup
-ENV ODOO_USER openerp
+ENV ODOO_USER odoo
 ENV ODOO_HOME /home/$ODOO_USER
 ENV ODOO_ADDONS_DIR $ODOO_HOME/addons
 
@@ -22,7 +22,7 @@ RUN apt-get upgrade -y
 RUN apt-get install -y vim git wget curl 
 RUN apt-get install -y supervisor openssh-server
 
-RUN apt-get install --allow-unauthenticated -y openerp
+RUN apt-get install --allow-unauthenticated -y odoo
 
 RUN mkdir -p /var/run/sshd
 RUN mkdir -p /var/log/supervisor
@@ -39,7 +39,7 @@ RUN sed -i "s/ssl = true/ssl = false/g" /etc/postgresql/9.3/main/postgresql.conf
 # start postgresql and create a role
 USER postgres
 RUN /etc/init.d/postgresql start &&\
-    psql -e --command "CREATE USER $ODOO_USER WITH SUPERUSER PASSWORD 'openerp'" &&\
+    psql -e --command "CREATE USER $ODOO_USER WITH SUPERUSER PASSWORD 'odoo'" &&\
     /etc/init.d/postgresql stop
 
 USER root
@@ -53,7 +53,12 @@ RUN chown $ODOO_USER:$ODOO_USER -R $ODOO_HOME
 # change user shell thus a root can su to the account
 RUN chsh -s /bin/bash $ODOO_USER
 
-ENV ODOO_CONFIG /etc/openerp/openerp-server.conf
+# set Odoo user password and sudo group
+RUN echo "$ODOO_USER:$ODOO_USER" | chpasswd
+RUN usermod -aG sudo $ODOO_USER
+
+# configure Odoo server and addon
+ENV ODOO_CONFIG /etc/odoo/openerp-server.conf
 RUN sed -i "s/db_user = .*/db_user = $ODOO_USER/g" $ODOO_CONFIG 
 RUN echo "addons_path = $ODOO_ADDONS_DIR" >> $ODOO_CONFIG 
 
@@ -74,10 +79,10 @@ RUN echo "user = postgres" >> $SUPERVISORD_CONFIG_FILE
 RUN echo "command = /usr/lib/postgresql/9.3/bin/postgres -D /var/lib/postgresql/9.3/main -c config_file=/etc/postgresql/9.3/main/postgresql.conf" >> $SUPERVISORD_CONFIG_FILE
 
 RUN echo "" >> $SUPERVISORD_CONFIG_FILE
-RUN echo "[program:openerp]" >> $SUPERVISORD_CONFIG_FILE
-RUN echo "user = openerp" >> $SUPERVISORD_CONFIG_FILE
-RUN echo 'environment = USER="openerp", LOGNAME="openerp", HOME="/home/openerp"' >> $SUPERVISORD_CONFIG_FILE
-RUN echo "command = /usr/bin/openerp-server --config=/etc/openerp/openerp-server.conf --logfile=/var/log/openerp/openerp-server.log" >> $SUPERVISORD_CONFIG_FILE
+RUN echo "[program:odoo]" >> $SUPERVISORD_CONFIG_FILE
+RUN echo "user = odoo" >> $SUPERVISORD_CONFIG_FILE
+RUN echo 'environment = USER="odoo", LOGNAME="odoo", HOME="/home/odoo"' >> $SUPERVISORD_CONFIG_FILE
+RUN echo "command = /usr/bin/openerp-server --config=/etc/odoo/openerp-server.conf --logfile=/var/log/odoo/openerp-server.log" >> $SUPERVISORD_CONFIG_FILE
 
 EXPOSE 22 5432 8069
 
