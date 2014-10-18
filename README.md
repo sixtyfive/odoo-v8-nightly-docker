@@ -37,20 +37,24 @@ you need to login to the container. There are two methods:
  
 
 ```bash
-# If you use Docker 1.3 or newer, 
-# you can use the following command to login:
-sudo docker exec odoo8 -it bash
+# If you use Docker 1.3 or newer, you can use the following command to login:
 
-## If you use Docker 1.2 or older, you need a tool called [nsenter](https://github.com/jpetazzo/nsenter).##  
-# install nsenter into /usr/local/bin
+sudo docker exec -it odoo8 bash
+
+### If you use Docker 1.2 or older, you need a tool 
+called [nsenter](https://github.com/jpetazzo/nsenter).  
+The following command installs nsenter into /usr/local/bin
+and login to the container ###
+
 # sudo docker run --rm -v /usr/local/bin:/target jpetazzo/nsenter
-## login to  container using docker-enter ##
+
 # sudo docker-enter odoo8
 
-# In the container, change the owner of a Postgresql directory.
+# Inside the container, change the owner of a Postgresql directory.
 chown postgres:postgres -R /var/lib/postgresql/9.3/main/
 
 # exit the container
+
 exit
 ```
 
