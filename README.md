@@ -4,25 +4,22 @@ odoo-v8-nightly-docker
 ## Overview
 We created a self-contained [Odoo 8.0 Docker image]
 (https://registry.hub.docker.com/u/yingliu4203/odoo8nightly/) that 
-was installed from [the latest Odoo 8.0 nightly build] 
+is based on [the latest Odoo 8.0 nightly build] 
 (http://nightly.openerp.com/8.0/nightly/deb/). 
-The Docker image building source code is in [a GitHub repository]
+The Dockerfile code is in [a GitHub repository]
 (https://github.com/YingLiu4203/odoo-v8-nightly-docker). It is based on 
 [Shaker Qawasmi's Odoo Dockerfile]
 (https://github.com/sqawasmi/odoo-docker/blob/v8/Dockerfile) 
 and uses some scripting ideas from 
 [ANDRÉ SCHENKELS's Odoo installation script] 
 (https://github.com/aschenkels-ictstudio/openerp-install-scripts/blob/master/odoo-v8/ubuntu-14-04/odoo_install.sh). 
-We had several issues in creating this Docker image. 
-They are listed at the end. 
-
-There are three major changes from Shaker's Odoo image:  
+There are three major changes from other Odoo images:  
 
 * It uses the recently available Odoo 8.0 nightly build
 * It is self-contained. We use a local postgresql database that 
 comes with the Odoo 8.0 installation.
 * It does not use extra configuration files. All configuration files 
-are created using Docker commands.
+are created using Dockerfile code.
 
 ## To Use It
 
@@ -33,21 +30,24 @@ sudo docker run --name odoo8 -p 2222:22 -p 5432:5432 -p 8069:8069 -d yingliu4203
 ```
 
 The above command creates a Docker instance named "odoo8" from the 
-Docker image.  If not for a Docker bug, the above command is all you need. 
+Docker image.  If not for a Docker bug, this command is all you need. 
 However, there is a "Permission denied" Postgresql error when 
 you run an image that was built in Docker Hub. To fix it, 
-you need to login to the container using a tool called
-[nsenter](https://github.com/jpetazzo/nsenter) and change 
-the owner of a Postgresql directory.
+you need to login to the container. There are two methods: 
+ 
 
 ```bash
+# If you use Docker 1.3 or newer, 
+# you can use the following command to login:
+sudo docker exec odoo8 -it bash
+
+## If you use Docker 1.2 or older, you need a tool called [nsenter](https://github.com/jpetazzo/nsenter).##  
 # install nsenter into /usr/local/bin
-sudo docker run --rm -v /usr/local/bin:/target jpetazzo/nsenter
+# sudo docker run --rm -v /usr/local/bin:/target jpetazzo/nsenter
+## login to  container using docker-enter ##
+# sudo docker-enter odoo8
 
-# login odoo container
-sudo docker-enter odoo8
-
-# inside the container
+# In the container, change the owner of a Postgresql directory.
 chown postgres:postgres -R /var/lib/postgresql/9.3/main/
 
 # exit the container
