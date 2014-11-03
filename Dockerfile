@@ -21,10 +21,13 @@ RUN apt-get upgrade -y
 
 RUN apt-get install -y vim git wget curl
 
-# Odoo need wkhtmltopdf to generate report
-RUN apt-get install -y supervisor openssh-server wkhtmltopdf
+RUN apt-get install -y supervisor openssh-server
 
 RUN apt-get install --allow-unauthenticated -y odoo
+
+# odoo need wkhtmltopdf to generate report
+RUN wget http://sourceforge.net/projects/wkhtmltopdf/files/0.12.1/wkhtmltox-0.12.1_linux-trusty-amd64.deb
+RUN dpkg -i wkhtmltox-0.12.1_linux-trusty-amd64.deb
 
 RUN mkdir -p /var/run/sshd
 RUN mkdir -p /var/log/supervisor
