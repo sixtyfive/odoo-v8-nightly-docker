@@ -19,8 +19,10 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 RUN apt-get update
 RUN apt-get upgrade -y
 
-RUN apt-get install -y vim git wget curl 
-RUN apt-get install -y supervisor openssh-server
+RUN apt-get install -y vim git wget curl
+
+# Odoo need wkhtmltopdf to generate report
+RUN apt-get install -y supervisor openssh-server wkhtmltopdf
 
 RUN apt-get install --allow-unauthenticated -y odoo
 
