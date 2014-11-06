@@ -87,7 +87,7 @@ RUN echo "" >> $SUPERVISORD_CONFIG_FILE
 RUN echo "[program:odoo]" >> $SUPERVISORD_CONFIG_FILE
 RUN echo "user = odoo" >> $SUPERVISORD_CONFIG_FILE
 RUN echo 'environment = USER="odoo", LOGNAME="odoo", HOME="/home/odoo"' >> $SUPERVISORD_CONFIG_FILE
-RUN echo "command = /usr/bin/openerp-server --config=/etc/odoo/openerp-server.conf --logfile=/var/log/odoo/openerp-server.log" >> $SUPERVISORD_CONFIG_FILE
+RUN echo "command = /usr/bin/odoo.py --config=/etc/odoo/openerp-server.conf --logfile=/var/log/odoo/openerp-server.log" >> $SUPERVISORD_CONFIG_FILE
 
 EXPOSE 22 5432 8069
 
