@@ -21,15 +21,12 @@ RUN apt-get upgrade -y
 
 RUN apt-get install -y vim git wget curl
 
-RUN apt-get install -y supervisor openssh-server
-
 RUN apt-get install --allow-unauthenticated -y odoo
 
 # odoo needs wkhtmltopdf to generate report
 RUN wget https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox_0.12.5-1.trusty_amd64.deb
 RUN dpkg -i wkhtmltox_0.12.5-1.trusty_amd64.deb
 
-RUN mkdir -p /var/run/sshd
 RUN mkdir -p /var/log/supervisor
 
 #### config postgresql
@@ -75,8 +72,6 @@ RUN mkdir -p $SUPERVISORD_CONFIG_DIR
 RUN echo "[supervisord]" >> $SUPERVISORD_CONFIG_FILE
 RUN echo "nodaemon=true" >> $SUPERVISORD_CONFIG_FILE
 RUN echo "" >> $SUPERVISORD_CONFIG_FILE
-RUN echo "[program:sshd]" >> $SUPERVISORD_CONFIG_FILE
-RUN echo "command = /usr/sbin/sshd -D" >> $SUPERVISORD_CONFIG_FILE
 
 RUN echo "" >> $SUPERVISORD_CONFIG_FILE
 RUN echo "[program:postgresql]" >> $SUPERVISORD_CONFIG_FILE
