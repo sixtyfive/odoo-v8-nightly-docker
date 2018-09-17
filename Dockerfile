@@ -59,7 +59,7 @@ RUN chown $ODOO_USER:$ODOO_USER -R $ODOO_HOME
 RUN chsh -s /bin/bash $ODOO_USER
 
 # set Odoo user password and sudo group
-RUN echo "$ODOO_USER:$ODOO_USER" | chpasswd
+# RUN echo "$ODOO_USER:$ODOO_USER" | chpasswd # should be done manually on first login
 RUN usermod -aG sudo $ODOO_USER
 
 # configure Odoo server and addon
