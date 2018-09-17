@@ -2,17 +2,12 @@ odoo-v8-nightly-docker
 ======================
 
 ## Overview
-We created a self-contained [Odoo 8.0 Docker image]
-(https://registry.hub.docker.com/u/yingliu4203/odoo8nightly/) that 
-is based on [the latest Odoo 8.0 nightly build] 
-(http://nightly.openerp.com/8.0/nightly/deb/). 
-The Dockerfile code is in [a GitHub repository]
-(https://github.com/YingLiu4203/odoo-v8-nightly-docker). It is based on 
-[Shaker Qawasmi's Odoo Dockerfile]
-(https://github.com/sqawasmi/odoo-docker/blob/v8/Dockerfile) 
+We created a self-contained [Odoo 8.0 Docker image](https://registry.hub.docker.com/u/yingliu4203/odoo8nightly/) that 
+is based on [the latest Odoo 8.0 nightly build](http://nightly.openerp.com/8.0/nightly/deb/). 
+The Dockerfile code is in [a GitHub repository](https://github.com/YingLiu4203/odoo-v8-nightly-docker). It is based on 
+[Shaker Qawasmi's Odoo Dockerfile](https://github.com/sqawasmi/odoo-docker/blob/v8/Dockerfile) 
 and uses some scripting ideas from 
-[ANDRÉ SCHENKELS's Odoo installation script] 
-(https://github.com/aschenkels-ictstudio/openerp-install-scripts/blob/master/odoo-v8/ubuntu-14-04/odoo_install.sh). 
+[ANDRÉ SCHENKELS's Odoo installation script](https://github.com/aschenkels-ictstudio/openerp-install-scripts/blob/master/odoo-v8/ubuntu-14-04/odoo_install.sh). 
 There are three major changes from other Odoo images:  
 
 * It uses the recently available Odoo 8.0 nightly build
@@ -89,8 +84,7 @@ Then you can start the services using the init.d service command
 
 ## Technical issues 
 
-The [Docker build file] 
-(https://github.com/YingLiu4203/odoo-v8-nightly-docker/blob/master/Dockerfile)
+The [Docker build file](https://github.com/YingLiu4203/odoo-v8-nightly-docker/blob/master/Dockerfile)
 looks simple. However, there were some technical issues in creating
 this file. We document them here thinking that somebody may want
 to fork and customize it.  
