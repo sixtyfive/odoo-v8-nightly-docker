@@ -89,7 +89,7 @@ RUN echo "user = odoo" >> $SUPERVISORD_CONFIG_FILE
 RUN echo 'environment = USER="odoo", LOGNAME="odoo", HOME="/home/odoo"' >> $SUPERVISORD_CONFIG_FILE
 RUN echo "command = /usr/bin/odoo.py --config=/etc/odoo/openerp-server.conf --logfile=/var/log/odoo/openerp-server.log" >> $SUPERVISORD_CONFIG_FILE
 
-EXPOSE 22 5432 8069
+EXPOSE 8069
 
 # supervisord requires CMD
 CMD ["/usr/bin/supervisord", "--configuration=/etc/supervisor/conf.d/supervisord.conf"]
